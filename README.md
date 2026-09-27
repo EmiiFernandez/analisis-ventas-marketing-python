@@ -1,87 +1,95 @@
-# 📊 Análisis de Desempeño Económico (Ventas & Marketing)
+# Análisis de ventas y marketing con Python
 
-Este repositorio contiene el código y la documentación del Análisis Exploratorio de Datos (EDA) del negocio, incluyendo:
-* Limpieza y estandarización de datos
-* Análisis de ventas por producto, categoría y mes
-* Identificación de productos de alto rendimiento
-* Evaluación de campañas y canales de marketing
-* KPIs del negocio
-* Visualizaciones clave
-* Consolidación final para toma de decisiones
+Análisis exploratorio de 3.000 ventas de un retail durante 2024: limpieza, KPIs, productos y categorías, estacionalidad y cruce con campañas de marketing. Proyecto final del curso Análisis de Datos con Python (Talento Tech, 2025), con una revisión posterior en la que corregí tres errores del análisis original.
 
-El objetivo del proyecto es recorrer todo el flujo de trabajo de un analista de datos:
-cargar → limpiar → analizar → visualizar → interpretar → consolidar insights.
+**Herramientas:** Python · pandas · NumPy · SciPy · Matplotlib · Seaborn · Jupyter / Google Colab
 
----
+<img src="images/ventas_mes_categoria.png" alt="Ingresos por mes y categoría en 2024" width="700"/>
 
-## 🚀 Objetivos del Proyecto
+## Problema
 
-* Limpiar y preparar datasets reales
-* Analizar tendencias, patrones y variaciones en ventas
-* Identificar productos más rentables y de mayor volumen
-* Evaluar el impacto del marketing en las ventas
-* Crear visualizaciones con técnicas modernas
-* Construir un conjunto final de KPIs para la toma de decisiones
-* Comunicar insights de manera clara y accionable
+Un retail quería entender su desempeño en 2024: cuánto facturó, qué productos y categorías sostienen el negocio, cómo se mueven las ventas en el año y si las campañas de marketing se relacionan con las ventas.
 
-📚 Proyecto desarrollado como parte del curso “Análisis de Datos con Python – 2025”.
+## Datos
 
----
+Tres archivos provistos por el curso, con datos simulados (`data/`):
 
-## 🛠️ 2. Tecnologías y Librerías
+- `ventas.csv`: 3.035 registros con producto, precio, cantidad, fecha y categoría.
+- `marketing.csv`: 90 campañas, 3 por producto (TV, redes sociales y email), con costo y fechas de inicio y fin.
+- `clientes.csv`: 567 clientes con edad, ciudad e ingresos. No se puede cruzar con las ventas porque las ventas no tienen ID de cliente, así que no lo usé en el análisis.
 
-* **Entorno:** Google Colab
-* **Lenguaje:** Python 3.x
-* **Librerías Principales:** `pandas`, `numpy`, `matplotlib`, `unidecode`, `seaborn`, `scipy`
-* **Datos:** Archivos CSV de Ventas, Clientes y Marketing.
+`Sets de datos.pdf` es la descripción de los archivos entregada por el curso.
 
----
+## Método
 
-## ✨ Flujo del Proyecto
+1. **Limpieza:** eliminé 35 ventas duplicadas y 2 con valores nulos (quedan 2.998), saqué el símbolo `$` del precio, convertí fechas y normalicé textos (minúsculas, sin tildes).
+2. **Transformación:** calculé el ingreso de cada venta (precio × cantidad) y marqué como "alto rendimiento" a los productos por encima del percentil 80 de ingreso.
+3. **Agregación:** ingreso y ticket promedio por categoría, producto y mes.
+4. **Estadística descriptiva:** media, mediana, moda, rango, varianza y desvío del ingreso por venta.
+5. **EDA:** distribuciones, boxplots, evolución semanal y mensual, y mapas de calor por producto y categoría.
+6. **Revisión posterior:** una sección al final del notebook con las correcciones que se detallan más abajo.
 
-1.  **Importación de Datos:** Lectura de archivos CSV con pandas.
-2.  **Limpieza de Datos:**
-    * Eliminación de duplicados y valores nulos.
-    * Estandarización de nombres y formatos (p. ej., minúsculas y eliminación de acentos).
-3.  **Análisis Exploratorio (EDA):** 
-    * Análisis Descriptivo
-    * Análisis Temporal
-    * Análisis por Producto
-    * Análisis por Categoría
-    * Análisis de Marketing
+## Resultados
 
-## 📈 Visualizaciones Generadas
-   * Barras por producto, categoría y mes
-   * Histogramas y boxplots
-   * Heatmaps de ventas por mes y categoría
-   * Heatmap de ventas de los top 10 productos del año
-   * Scatterplots para correlación
-   * Líneas de ingresos semanales.
+**KPIs 2024:** USD 1.467.094 de ingreso, 2.998 ventas, 19.495 unidades y un ticket promedio de USD 489,36.
 
-## 📂 Estructura del Repositorio
+**El ingreso por venta es asimétrico.** La media (USD 489) está por encima de la mediana (USD 418), con un desvío de USD 334: hay ventas grandes que empujan el promedio hacia arriba.
+
+**Categorías parejas.** Electrodomésticos lidera con USD 505.300, seguida de electrónica (USD 482.578) y decoración (USD 479.216).
+
+**Seis productos de alto rendimiento.** De 30 productos, seis superan el percentil 80 de ingreso (USD 52.519): lámpara de mesa (USD 82.276), auriculares (USD 74.176), microondas (USD 72.563), cafetera, cuadro decorativo y smartphone.
+
+<img src="images/top10_productos.png" alt="Diez productos con más unidades vendidas" width="550"/>
+
+**Mayo es el mejor mes y junio el peor.** Mayo suma USD 143.727, impulsado por electrodomésticos (USD 55.743, el valor más alto del mapa de calor). Junio cae a USD 108.480.
+
+**Precio y cantidad no se relacionan.** La correlación entre el precio unitario y la cantidad por operación es de −0,002.
+
+**Ventas durante las campañas.** De las 2.998 ventas, 768 ocurrieron mientras su producto tenía una campaña activa. Esas ventas suman USD 152.161 en email, USD 139.197 en TV y USD 125.450 en redes sociales. Es una asociación: no hay un grupo sin campaña para comparar, así que no mide el efecto de cada canal.
+
+### Qué corregí en la revisión
+
+| Análisis original | Problema | Corrección |
+|---|---|---|
+| Ventas mensuales (Etapa 1) | Sumaba solo el precio, sin multiplicar por la cantidad (enero daba USD 20.097) | Ingreso = precio × cantidad (enero: USD 129.605) |
+| Correlación (Etapa 3) | Comparaba cantidad contra ingreso, que están relacionados por definición | Correlación entre precio y cantidad, como pedía la consigna |
+| Ventas por canal de marketing | Unía ventas y campañas solo por producto: cada venta se contaba tres veces y los tres canales daban el mismo total (USD 1.467.094) | Cruce por producto y por fecha dentro de la vigencia de cada campaña |
+
+## Cómo ejecutarlo
+
+Requisitos: Python 3.11 o superior.
+
+```bash
+git clone https://github.com/EmiiFernandez/analisis-ventas-marketing-python.git
+cd analisis-ventas-marketing-python
+pip install -r requirements.txt
+jupyter notebook notebook/proyecto_final_fernandez_emilia_comision_25262.ipynb
 ```
+
+El notebook lee los CSV desde `../data/`. En Google Colab, subir la carpeta `data/` y ajustar la ruta.
+
+## Estructura del repo
+
+```
+analisis-ventas-marketing-python/
 ├── data/
-|   ├── ventas.csv
-│   ├── clientes.csv
-│   └── marketing.csv
-├── notebooks/
-│   └── proyecto_final_fernandez_emilia_comision_25262.ipynb
-└── README.md
+│   ├── ventas.csv
+│   ├── marketing.csv
+│   ├── clientes.csv
+│   └── Sets de datos.pdf     # descripción de los datos (curso)
+├── images/                   # gráficos usados en este README
+├── notebook/
+│   └── proyecto_final_fernandez_emilia_comision_25262.ipynb
+├── requirements.txt
+└── LICENSE
 ```
 
-## 💬 Resultados Esperados
+## Próximos pasos
 
-* Comprender las bases del análisis exploratorio.
-* Practicar el uso de pandas y numpy.
-* Empezar a comunicar resultados con métricas.
+- Medir el efecto de las campañas comparando cada producto durante y fuera de su campaña, y calcular el retorno por canal con los costos.
+- Pasar la limpieza a funciones reutilizables en un módulo `.py` con tests.
+- Si se agrega el ID de cliente a las ventas, segmentar clientes por edad, ciudad e ingresos.
 
-## 👩‍💻 Autor
+---
 
-Desarrollado por: **Emilia Fernández**
-📅 Proyecto de práctica – Análisis de Datos con Python 2025
-
-## 🔗 Conectemos
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/emiliafernandez)
-
-⭐ Si te interesa seguir mi progreso, no olvides dejar una estrella ⭐ en el repositorio.
+Emilia Fernández · [LinkedIn](https://www.linkedin.com/in/emiliafernandez) · Licencia MIT
